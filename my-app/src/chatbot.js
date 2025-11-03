@@ -1,81 +1,114 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 function Chatbot({ apiKey, weather }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const chatEndRef = useRef(null); // 👈 reference to bottom of chat
 
-  // ✨ Function to generate smart chatbot responses
-  const getChatbotResponse = async (userMessage) => {
-    const msg = userMessage.toLowerCase();
-
-    // 1️⃣ Greetings
-    if (msg.includes("hi") || msg.includes("hello")) {
-      return "Hello! 👋 How are you today?";
-    }
-
-    // 2️⃣ Thank you
-    if (msg.includes("thank")) {
-      return "You're very welcome! 😊 Stay safe!";
-    }
-
-    // 3️⃣ Help / About
-    if (msg.includes("help") || msg.includes("what can you do")) {
-      return "I can tell you the weather 🌦️ and give smart recommendations ☔🧥!";
-    }
-
-    // 4️⃣ Recommendations based on live weather
-    if (msg.includes("recommend") || msg.includes("suggest")) {
-      if (!weather) {
-        return "Please check the weather first so I can suggest better! 🌍";
-      }
-
-      const condition = weather.weather[0].main.toLowerCase();
-      if (condition.includes("rain")) return "☔ It's rainy — carry an umbrella and wear waterproof shoes!";
-      if (condition.includes("clear")) return "😎 It's sunny — wear sunglasses and stay hydrated!";
-      if (condition.includes("cloud")) return "☁️ Cloudy skies — maybe a light jacket!";
-      if (condition.includes("snow")) return "❄️ It's snowy — bundle up and stay warm!";
-      if (condition.includes("drizzle")) return "🌦️ Light drizzle — take an umbrella!";
-      if (condition.includes("mist")) return "🌫️ Misty weather — drive slowly and use fog lights!";
-      return "🌍 Stay prepared for any weather!";
-    }
-
-    // 5️⃣ Weather in [city]
-    const cityMatch = msg.match(/weather in ([a-zA-Z\s]+)/i);
-    if (cityMatch) {
-      const city = cityMatch[1].trim();
-
-      try {
-        const res = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-        );
-        const data = await res.json();
-
-        if (data.cod === 200) {
-          return `🌤️ Weather in ${data.name}: ${data.main.temp}°C, ${data.weather[0].main}`;
-        } else {
-          return `Sorry, I couldn't find weather for ${city}. 😕`;
-        }
-      } catch (err) {
-        console.error(err);
-        return "Error fetching weather data. Please try again later.";
-      }
-    }
-
-    // 6️⃣ Default fallback
-    return "I'm still learning 🤖. Try 'weather in Hyderabad' or 'recommend something'.";
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // 🪄 When user clicks send or presses Enter
+  // Auto-scroll whenever messages update
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+const getChatbotResponse = async (userMessage) => {
+  const msg = userMessage.toLowerCase().trim();
+
+  // Greeting logic
+  if (/(hi|hello|hey)\b/.test(msg)) return "Hello! 👋 How are you today?";
+  if (msg.includes("thank")) return "You're very welcome! 😊 Stay safe!";
+  if (msg.includes("help")) return "I can tell you the weather 🌦️ or give outfit suggestions! 👕";
+
+  // --- Recommendation logic ---
+if (msg.includes("recommend") || msg.includes("suggest")) {
+  let currentWeather = weather;
+
+  // fallback fetch if weather not passed
+  if (!currentWeather || !currentWeather.weather) {
+    console.log("Fetching default weather (Hyderabad)");
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=Hyderabad&appid=${apiKey}&units=metric`
+    );
+    currentWeather = await res.json();
+  }
+
+  if (!currentWeather.weather || !currentWeather.weather[0])
+    return "Please check the weather first or ask me about a city 🌍";
+
+  const condition = currentWeather.weather[0].main.toLowerCase();
+  const desc = currentWeather.weather[0].description.toLowerCase();
+  console.log("Detected condition:", condition, desc);
+
+  // 🌦️ Smart recommendations based on weather type
+  if (condition.includes("rain") || desc.includes("rain"))
+    return "☔ It’s rainy — wear a waterproof jacket and carry an umbrella!";
+  if (condition.includes("clear") || desc.includes("sunny"))
+    return "😎 Clear skies — go for light cotton clothes, sunglasses, and drink water!";
+  if (condition.includes("cloud") || desc.includes("overcast"))
+    return "☁️ Cloudy — you might want a light hoodie or a comfy tee.";
+  if (condition.includes("snow"))
+    return "❄️ Snowy weather — wear a thick jacket, gloves, and boots!";
+  if (condition.includes("drizzle"))
+    return "🌦️ Light drizzle — keep a compact umbrella or raincoat handy.";
+  if (condition.includes("mist") || condition.includes("fog"))
+    return "🌫️ Misty/foggy — wear visible colors and be cautious outdoors.";
+  if (condition.includes("haze") || condition.includes("smoke"))
+    return "😷 Air quality seems poor — wear a mask and avoid staying out too long.";
+  if (condition.includes("dust") || condition.includes("sand"))
+    return "🌬️ Dusty — wear a mask or scarf to protect yourself!";
+  if (condition.includes("thunder"))
+    return "⚡ Thunderstorms — better stay indoors and unplug electronics!";
+  if (condition.includes("ash") || condition.includes("volcanic"))
+    return "🌋 Volcanic ash detected — stay indoors and keep windows shut.";
+  if (condition.includes("squall"))
+    return "💨 Strong winds ahead — secure loose items and wear a windbreaker!";
+  if (condition.includes("tornado"))
+    return "🌪️ Tornado alert — stay in a safe shelter immediately!";
+
+  // fallback
+  return `🌍 The weather is ${desc}. Dress comfortably and stay safe!`;
+}
+
+
+  // --- City Weather Check ---
+  const cityPattern = /(?:weather\s*(?:in|at|for)?\s*)([a-zA-Z\s]+)/i;
+  const match = msg.match(cityPattern);
+  const city = match ? match[1].trim() : null;
+
+  if (city) {
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+      );
+      const data = await res.json();
+      if (data.cod === 200) {
+        return `🌤️ Weather in ${data.name}: ${data.main.temp}°C, ${data.weather[0].main}`;
+      } else {
+        return `❌ I couldn’t find weather for "${city}". Try another city.`;
+      }
+    } catch (err) {
+      console.error(err);
+      return "⚠️ Error fetching weather data.";
+    }
+  }
+
+  return "I'm still learning 🤖. Try 'weather in Hyderabad' or 'recommend something'.";
+};
+
+
   const handleSend = async () => {
-    if (!input.trim()) return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput) return;
 
-    const userMessage = { sender: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-
-    const botReply = await getChatbotResponse(input);
+    const userMessage = { sender: "user", text: trimmedInput };
+    const botReply = await getChatbotResponse(trimmedInput);
     const botMessage = { sender: "bot", text: botReply };
 
-    setMessages((prev) => [...prev, botMessage]);
+    // Update both messages at once to avoid repetition
+    setMessages((prev) => [...prev, userMessage, botMessage]);
     setInput("");
   };
 
@@ -83,19 +116,20 @@ function Chatbot({ apiKey, weather }) {
     if (e.key === "Enter") handleSend();
   };
 
-  // 💬 UI Layout
   return (
     <div className="chatbot-container">
       <h3>Weather Chatbot</h3>
+
       <div className="chat-log">
-        {messages.map((msg, index) => (
+        {messages.map((msg, i) => (
           <div
-            key={index}
+            key={i}
             className={msg.sender === "user" ? "chat-user" : "chat-bot"}
           >
             {msg.text}
           </div>
         ))}
+        <div ref={chatEndRef} /> {/* 👈 always scrolls to this */}
       </div>
 
       <div className="chat-input">

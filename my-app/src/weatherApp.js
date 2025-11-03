@@ -14,7 +14,8 @@ import humidIcon from './images/humidity.png';
 import windIcon from './images/wind.png';
 import Login from "./login";
 import Chatbot from "./chatbot";
-import chatIcon from './images/chatbot.jpg';
+import chatIcon from './images/chatIcon.png';
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 
@@ -35,7 +36,6 @@ function WeatherApp() {
           const data =await response.json();
           if (data.cod===200){
             setweather(data);
-
             const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apikey}&units=metric`);
             const forecastData = await forecastResponse.json();
             if (forecastData.cod === "200") {
@@ -68,7 +68,6 @@ function WeatherApp() {
     recommendations.push("Temperature is moderate, dress comfortably.");
   }
 
-  // Weather condition-based
   switch (condition) {
     case "Rain":
       recommendations.push("Don't forget your umbrella or raincoat!");

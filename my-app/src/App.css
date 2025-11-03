@@ -1,4 +1,4 @@
-/* --- Reset & body --- */
+/* Base reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,12 +7,16 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(to right, #74ebd5, #ACB6E5);
+  background: 
+    linear-gradient(to top, rgba(25, 20, 20, 0.7), rgba(255, 180, 120, 0.6)),
+    url('images/sky.jpg') no-repeat center center fixed;
+  background-size: cover;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  color: #fefefe;
 }
 
 /* --- Main grid layout --- */
@@ -28,25 +32,28 @@ body {
 .card {
   border-radius: 20px;
   padding: 25px;
-  color: #fff;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  color: #fefefe;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-7px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
 }
 
 /* --- Weather Card --- */
 #weather-card {
-  background: linear-gradient(to top, #4facfe, #00f2fe);
   text-align: center;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .weatherIcon {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   margin-bottom: 15px;
   transition: transform 0.3s ease;
 }
@@ -56,31 +63,18 @@ body {
 }
 
 .temp {
-  font-size: 50px;
+  font-size: 48px;
   font-weight: 700;
-  margin-bottom: 5px;
-  transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
-  cursor: default;
-}
-
-.temp:hover {
-  transform: scale(1.2);
-  color: #ffeb3b;
-  text-shadow: 0 0 15px #ffeb3b, 0 0 25px #ffeb3b;
+  color: #ffcc66; /* warm sunlight yellow */
 }
 
 .city {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 500;
-  margin-bottom: 20px;
-  transition: color 0.3s ease;
+  color: #ffe9c9;
 }
 
-.city:hover {
-  color: #fff8dc;
-}
-
-/* Details like humidity and wind */
+/* --- Details --- */
 .details {
   display: flex;
   justify-content: space-around;
@@ -94,9 +88,9 @@ body {
 }
 
 .details .col img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 8px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
   transition: transform 0.3s ease;
 }
 
@@ -105,144 +99,82 @@ body {
 }
 
 .details .col p {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 15px;
+  color: #fffaf0;
 }
 
 /* --- Recommendations Card --- */
 #recommendations-card {
-  background: linear-gradient(to top, #ff758c, #ff7eb3);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .recommendations h2 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 15px;
   text-align: center;
-}
-
-.recommendations ul {
-  list-style-type: disc;
-  padding-left: 25px;
+  color: #ffdd99;
 }
 
 .recommendations li {
   margin-bottom: 10px;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
+  color: #fffaf0;
 }
 
 /* --- Forecast Card --- */
 #forecast-card {
-  background: linear-gradient(to top, #43e97b, #38f9d7);
+  background: rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
 .forecast h2 {
   margin-bottom: 15px;
-  font-size: 22px;
-  color: #fff;
+  font-size: 20px;
+  color: #ffe3b0;
 }
 
-/* --- Search bar styling --- */
+/* --- Search bar styling (compact, warm tone) --- */
 .search {
   display: flex;
   justify-content: center;
-  margin-bottom: 25px;
+  margin-bottom: 5px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 70px;
 }
 
 .search input {
-  padding: 12px 15px;
-  font-size: 16px;
-  border-radius: 50px 0 0 50px;
-  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 40px 0 0 40px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   outline: none;
   flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.search input::placeholder {
+  color: #f2f2f2;
 }
 
 .search button {
-  background: #fff;
+  background: #ffcc66;
   border: none;
-  padding: 12px 20px;
-  border-radius: 0 50px 50px 0;
+  padding: 8px 14px;
+  border-radius: 0 40px 40px 0;
   cursor: pointer;
+  color: #222;
   transition: background 0.3s ease;
 }
 
 .search button:hover {
-  background: rgba(255,255,255,0.8);
+  background: #ffd480;
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
-  .details {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .temp {
-    font-size: 36px;
-  }
-
-  .city {
-    font-size: 20px;
-  }
-
-  .weatherIcon {
-    width: 100px;
-    height: 100px;
-  }
-}
-/* --- Recommendations Card --- */
-#recommendations-card {
-  background: linear-gradient(to top right, #ff758c, #ff7eb3);
-  padding: 30px 25px;
-  min-height: 250px; /* ensures card doesn't look empty */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 15px;
-}
-
-.recommendations h2 {
-  font-size: 22px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.recommendations ul {
-  list-style-type: disc;
-  padding-left: 25px;
-  flex-grow: 1; /* fills remaining space */
-}
-
-.recommendations li {
-  margin-bottom: 10px;
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-/* --- Forecast Card --- */
-#forecast-card {
-  background: linear-gradient(to top right, #43e97b, #38f9d7);
-  padding: 30px 25px;
-  min-height: 300px; /* ensures card doesn't look empty */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.forecast h2 {
-  margin-bottom: 15px;
-  font-size: 22px;
-  color: #fff;
-}
-
-.forecast canvas {
-  width: 100% !important;
-  max-width: 100%;
-  height: auto !important;
-}
+/* --- Chatbot --- */
 .chatbot-container {
   position: fixed;
   bottom: 20px;
@@ -250,33 +182,38 @@ body {
   width: 300px;
   max-width: 90%;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  color: #fff;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  color: #fffaf0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .chatbot-container h3 {
   text-align: center;
+  color: #ffe9c9;
 }
 
 .chat-log {
   max-height: 250px;
   overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  background-color: beige;
   gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
 }
 
 .chat-user {
   align-self: flex-end;
-  background: #61dafb;
-  color: #000;
+  background: #ffcc66;
+  color: #222;
   padding: 8px 12px;
   border-radius: 15px 15px 0 15px;
   max-width: 80%;
@@ -284,23 +221,20 @@ body {
 
 .chat-bot {
   align-self: flex-start;
-  background: #282c34;
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
   padding: 8px 12px;
   border-radius: 15px 15px 15px 0;
   max-width: 80%;
 }
 
-.chat-input {
-  display: flex;
-  gap: 10px;
-}
-
 .chat-input input {
   flex: 1;
   padding: 10px;
   border-radius: 50px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   outline: none;
 }
 
@@ -309,57 +243,45 @@ body {
   border-radius: 50px;
   border: none;
   cursor: pointer;
-  background: #61dafb;
-  color: #000;
-}
-.chat-toggle {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: 1001;
+  background: #ffcc66;
+  color: #222;
 }
 
-.chat-toggle img {
-  width: 40px;
-  height: 40px;
+.chat-input button:hover {
+  background: #ffd480;
+}
+
+/* --- Chat toggle --- */
+.chat-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
+  padding: 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 1000;
 }
 
 .chat-toggle:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
-.chatbot-container {
-  animation: fadeInUp 0.3s ease;
+.chat-toggle img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.chat-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
-/* Add this to your App.css or chatbot.css */
-.chatbot-launcher {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
+.chat-toggle:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
-
-
