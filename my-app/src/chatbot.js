@@ -3,113 +3,115 @@ import React, { useState, useRef, useEffect } from "react";
 function Chatbot({ apiKey, weather }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const chatEndRef = useRef(null); // 👈 reference to bottom of chat
+  const [chatWeather, setChatWeather] = useState(weather || null);
+  const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Auto-scroll whenever messages update
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-const getChatbotResponse = async (userMessage) => {
-  const msg = userMessage.toLowerCase().trim();
+  // Keep chatbot's weather in sync with main app
+  useEffect(() => {
+    if (weather) setChatWeather(weather);
+  }, [weather]);
 
-  // Greeting logic
-  if (/(hi|hello|hey)\b/.test(msg)) return "Hello! 👋 How are you today?";
-  if (msg.includes("thank")) return "You're very welcome! 😊 Stay safe!";
-  if (msg.includes("help")) return "I can tell you the weather 🌦️ or give outfit suggestions! 👕";
+  const getChatbotResponse = async (userMessage) => {
+    const msg = userMessage.toLowerCase().trim();
 
-  // --- Recommendation logic ---
-if (msg.includes("recommend") || msg.includes("suggest")) {
-  let currentWeather = weather;
+    if (/(hi|hello|hey)\b/.test(msg)) return "Hello! 👋 How are you today?";
+    if (msg.includes("thank")) return "You're very welcome! 😊 Stay safe!";
+    if (msg.includes("help"))
+      return "I can tell you the weather 🌦️ or give outfit suggestions! 👕";
 
-  // fallback fetch if weather not passed
-  if (!currentWeather || !currentWeather.weather) {
-    console.log("Fetching default weather (Hyderabad)");
-    const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=Hyderabad&appid=${apiKey}&units=metric`
-    );
-    currentWeather = await res.json();
-  }
+    // Recommendations
+    if (msg.includes("recommend") || msg.includes("suggest")) {
+      let currentWeather = chatWeather;
 
-  if (!currentWeather.weather || !currentWeather.weather[0])
-    return "Please check the weather first or ask me about a city 🌍";
-
-  const condition = currentWeather.weather[0].main.toLowerCase();
-  const desc = currentWeather.weather[0].description.toLowerCase();
-  console.log("Detected condition:", condition, desc);
-
-  // 🌦️ Smart recommendations based on weather type
-  if (condition.includes("rain") || desc.includes("rain"))
-    return "☔ It’s rainy — wear a waterproof jacket and carry an umbrella!";
-  if (condition.includes("clear") || desc.includes("sunny"))
-    return "😎 Clear skies — go for light cotton clothes, sunglasses, and drink water!";
-  if (condition.includes("cloud") || desc.includes("overcast"))
-    return "☁️ Cloudy — you might want a light hoodie or a comfy tee.";
-  if (condition.includes("snow"))
-    return "❄️ Snowy weather — wear a thick jacket, gloves, and boots!";
-  if (condition.includes("drizzle"))
-    return "🌦️ Light drizzle — keep a compact umbrella or raincoat handy.";
-  if (condition.includes("mist") || condition.includes("fog"))
-    return "🌫️ Misty/foggy — wear visible colors and be cautious outdoors.";
-  if (condition.includes("haze") || condition.includes("smoke"))
-    return "😷 Air quality seems poor — wear a mask and avoid staying out too long.";
-  if (condition.includes("dust") || condition.includes("sand"))
-    return "🌬️ Dusty — wear a mask or scarf to protect yourself!";
-  if (condition.includes("thunder"))
-    return "⚡ Thunderstorms — better stay indoors and unplug electronics!";
-  if (condition.includes("ash") || condition.includes("volcanic"))
-    return "🌋 Volcanic ash detected — stay indoors and keep windows shut.";
-  if (condition.includes("squall"))
-    return "💨 Strong winds ahead — secure loose items and wear a windbreaker!";
-  if (condition.includes("tornado"))
-    return "🌪️ Tornado alert — stay in a safe shelter immediately!";
-
-  // fallback
-  return `🌍 The weather is ${desc}. Dress comfortably and stay safe!`;
-}
-
-
-  // --- City Weather Check ---
-  const cityPattern = /(?:weather\s*(?:in|at|for)?\s*)([a-zA-Z\s]+)/i;
-  const match = msg.match(cityPattern);
-  const city = match ? match[1].trim() : null;
-
-  if (city) {
-    try {
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
-      );
-      const data = await res.json();
-      if (data.cod === 200) {
-        return `🌤️ Weather in ${data.name}: ${data.main.temp}°C, ${data.weather[0].main}`;
-      } else {
-        return `❌ I couldn’t find weather for "${city}". Try another city.`;
+      if (!currentWeather || !currentWeather.weather) {
+        return "Please check the weather first (e.g., type 'weather in Delhi') so I can recommend properly 🌦️";
       }
-    } catch (err) {
-      console.error(err);
-      return "⚠️ Error fetching weather data.";
+
+      const condition = currentWeather.weather[0].main.toLowerCase();
+      const desc = currentWeather.weather[0].description.toLowerCase();
+      const city = currentWeather.name || "your location";
+
+      let recommendation = "";
+
+      if (condition.includes("rain") || desc.includes("rain")) {
+        recommendation = "☔ It’s rainy — wear a waterproof jacket and carry an umbrella!";
+      } else if (condition.includes("clear") || desc.includes("sunny")) {
+        recommendation = "😎 Clear skies — go for light cotton clothes, sunglasses, and stay hydrated!";
+      } else if (condition.includes("cloud") || desc.includes("overcast")) {
+        recommendation = "☁️ Cloudy — maybe a light hoodie or a comfy tee!";
+      } else if (condition.includes("snow")) {
+        recommendation = "❄️ Snowy weather — thick jacket, gloves, and boots are your best friends!";
+      } else if (condition.includes("drizzle")) {
+        recommendation = "🌦️ Light drizzle — keep a compact umbrella or raincoat handy.";
+      } else if (condition.includes("mist") || condition.includes("fog")) {
+        recommendation = "🌫️ Misty/foggy — wear visible colors and be cautious outdoors.";
+      } else if (condition.includes("haze") || condition.includes("smoke")) {
+        recommendation = "😷 Air quality seems poor — wear a mask and avoid long outdoor stays.";
+      } else if (condition.includes("dust") || condition.includes("sand")) {
+        recommendation = "🌬️ Dusty — wear a mask or scarf to protect yourself!";
+      } else if (condition.includes("thunder")) {
+        recommendation = "⚡ Thunderstorms — better stay indoors and unplug electronics!";
+      } else if (condition.includes("ash") || condition.includes("volcanic")) {
+        recommendation = "🌋 Volcanic ash detected — stay indoors and keep windows shut.";
+      } else if (condition.includes("squall")) {
+        recommendation = "💨 Strong winds — secure loose items and wear a windbreaker!";
+      } else if (condition.includes("tornado")) {
+        recommendation = "🌪️ Tornado alert — stay in a safe shelter immediately!";
+      } else {
+        recommendation = `🌍 The weather is ${desc}. Dress comfortably and stay safe!`;
+      }
+
+      return `Based on the weather in ${city}, ${recommendation}`;
     }
-  }
 
-  return "I'm still learning 🤖. Try 'weather in Hyderabad' or 'recommend something'.";
-};
+    // City weather
+    const cityPattern = /(?:weather\s*(?:in|at|for)?\s*)([a-zA-Z\s]+)/i;
+    const match = msg.match(cityPattern);
+    const city = match ? match[1].trim() : null;
 
+    if (city) {
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+        const data = await res.json();
+
+        if (data.cod === 200) {
+          // Store this fetched weather for future recommendations
+          setChatWeather(data);
+          return `🌤️ Weather in ${data.name}: ${data.main.temp}°C, ${data.weather[0].main}`;
+        } else {
+          return `❌ I couldn’t find weather for "${city}". Try another city.`;
+        }
+      } catch (err) {
+        console.error(err);
+        return "⚠️ Error fetching weather data.";
+      }
+    }
+
+    return "I'm still learning 🤖. Try 'weather in Hyderabad' or 'recommend something'.";
+  };
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
 
     const userMessage = { sender: "user", text: trimmedInput };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+
     const botReply = await getChatbotResponse(trimmedInput);
     const botMessage = { sender: "bot", text: botReply };
 
-    // Update both messages at once to avoid repetition
-    setMessages((prev) => [...prev, userMessage, botMessage]);
-    setInput("");
+    setMessages((prev) => [...prev, botMessage]);
   };
 
   const handleKeyPress = (e) => {
@@ -129,7 +131,7 @@ if (msg.includes("recommend") || msg.includes("suggest")) {
             {msg.text}
           </div>
         ))}
-        <div ref={chatEndRef} /> {/* 👈 always scrolls to this */}
+        <div ref={chatEndRef} />
       </div>
 
       <div className="chat-input">
