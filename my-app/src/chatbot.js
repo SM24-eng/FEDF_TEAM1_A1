@@ -13,12 +13,11 @@ function Chatbot({ apiKey, weather }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // Keep chatbot's weather in sync with main app
+  
   useEffect(() => {
     if (weather) setChatWeather(weather);
   }, [weather]);
-
+//chatressponse
   const getChatbotResponse = async (userMessage) => {
     const msg = userMessage.toLowerCase().trim();
 
